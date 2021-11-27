@@ -12,55 +12,55 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jameseng.dscatalog.dto.CategoryDTO;
-import com.jameseng.dscatalog.entities.Category;
-import com.jameseng.dscatalog.repositories.CategoryRepository;
+import com.jameseng.dscatalog.dto.ProductDTO;
+import com.jameseng.dscatalog.entities.Product;
+import com.jameseng.dscatalog.repositories.ProductRepository;
 import com.jameseng.dscatalog.services.exceptions.DatabaseException;
 import com.jameseng.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
-public class CategoryService {
+public class ProductService {
 
 	@Autowired
-	private CategoryRepository repository;
+	private ProductRepository repository;
 	
 	@Transactional(readOnly=true)
-	public Page<CategoryDTO> findAllPaged(PageRequest pageRequest) {
-		Page<Category> list=repository.findAll(pageRequest);
+	public Page<ProductDTO> findAllPaged(PageRequest pageRequest) {
+		Page<Product> list=repository.findAll(pageRequest);
 		
-		return list.map(x -> new CategoryDTO(x));
+		return list.map(x -> new ProductDTO(x));
 		
-		//List<CategoryDTO> listDto=list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
-		/*List<CategoryDTO> listDto=new ArrayList<>();
-		for(Category cat : list)
+		//List<ProductDTO> listDto=list.stream().map(x -> new ProductDTO(x)).collect(Collectors.toList());
+		/*List<ProductDTO> listDto=new ArrayList<>();
+		for(Product cat : list)
 		{
-			listDto.add(new CategoryDTO(cat));
+			listDto.add(new ProductDTO(cat));
 		}
 		return listDto;*/
 	}
 
 	@Transactional(readOnly=true)
-	public CategoryDTO findById(Long id) {
-		Optional<Category> obj=repository.findById(id);
-		Category entity=obj.orElseThrow(() -> new ResourceNotFoundException("Entity not Found."));
-		return new CategoryDTO(entity);
+	public ProductDTO findById(Long id) {
+		Optional<Product> obj=repository.findById(id);
+		Product entity=obj.orElseThrow(() -> new ResourceNotFoundException("Entity not Found."));
+		return new ProductDTO(entity, entity.getCategories());
 	}
 
 	@Transactional
-	public CategoryDTO insert(CategoryDTO dto) {
-		Category entity=new Category();
-		entity.setName(dto.getName());
+	public ProductDTO insert(ProductDTO dto) {
+		Product entity=new Product();
+		//entity.setName(dto.getName());
 		entity=repository.save(entity);
-		return new CategoryDTO(entity);
+		return new ProductDTO(entity);
 	}
 
 	@Transactional
-	public CategoryDTO update(Long id, CategoryDTO dto) {
+	public ProductDTO update(Long id, ProductDTO dto) {
 		try {
-			Category entity=repository.getOne(id); //getOne para atualizar dados
-			entity.setName(dto.getName());
+			Product entity=repository.getOne(id); //getOne para atualizar dados
+			//entity.setName(dto.getName());
 			entity=repository.save(entity);
-			return new CategoryDTO(entity);
+			return new ProductDTO(entity);
 		}
 		catch(EntityNotFoundException e) {
 			throw new ResourceNotFoundException("Id not found "+id);
