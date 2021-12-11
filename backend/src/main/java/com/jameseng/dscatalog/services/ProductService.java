@@ -32,7 +32,7 @@ public class ProductService {
 	
 	@Transactional(readOnly=true)
 	public Page<ProductDTO> findAllPaged(Pageable pageable) {
-		Page<Product> list=repository.findAll(pageable);
+		Page<Product> list=repository.findAll(pageable); //findAllPaged = retorna uma página (Page)
 		
 		return list.map(x -> new ProductDTO(x));
 		
@@ -68,7 +68,7 @@ public class ProductService {
 			entity=repository.save(entity);
 			return new ProductDTO(entity);
 		}
-		catch(EntityNotFoundException e) {
+		catch(EntityNotFoundException e) { //EntityNotFoundException = exceção da JPA
 			throw new ResourceNotFoundException("Id not found "+id);
 		}
 	}

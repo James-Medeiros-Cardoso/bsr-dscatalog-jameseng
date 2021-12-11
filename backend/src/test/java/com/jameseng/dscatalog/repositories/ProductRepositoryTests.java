@@ -44,20 +44,6 @@ public class ProductRepositoryTests {
 		Assertions.assertFalse(result.isPresent());
 	}
 	
-	@Test //Exercício: Teste de repository
-	public void findByIdWhenIdExists() {
-		
-		Optional<Product> result=repository.findById(existingId);
-		Assertions.assertTrue(result.isPresent());
-	}
-	
-	@Test //Exercício: Teste de repository
-	public void findByIdWhenIdDoesNotExists() {
-		
-		Optional<Product> result=repository.findById(noExistingId);
-		Assertions.assertFalse(result.isPresent());
-	}
-	
 	@Test
 	public void saveShouldPersistWithAutoincrementWhenIdIsNull() {
 		
@@ -78,5 +64,24 @@ public class ProductRepositoryTests {
 		Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
 			repository.deleteById(noExistingId);
 		});
+	}
+	
+	@Test //FEITO POR JAMES - Exercício: Teste de repository
+	public void findByIdShouldReturnNoEmptyOptionalWhenIdExists() {
+		
+		Optional<Product> result=repository.findById(existingId);
+		
+		//para ver se tem um Optional<Product> na variável "result"
+		Assertions.assertTrue(result.isPresent());
+		//result.isPresent() = testa se existe um produto dentro de "result"
+	}
+	
+	@Test //FEITO POR JAMES - Exercício: Teste de repository
+	public void findByIdShouldReturnEmptyOptionalWhenIdDoesNotExists() {
+		
+		Optional<Product> result=repository.findById(noExistingId);
+		Assertions.assertFalse(result.isPresent()); //Acrescentado por James
+		Assertions.assertTrue(result.isEmpty());
+		// result.isEmpty() = testa se o optional está vazio
 	}
 }
