@@ -43,7 +43,7 @@ public class ResourceExceptionHandler {
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<StandardError> database(MethodArgumentNotValidException e, HttpServletRequest request){
-		HttpStatus status=HttpStatus.UNPROCESSABLE_ENTITY; //422
+		HttpStatus status=HttpStatus.UNPROCESSABLE_ENTITY; //Código 422 = alguma entidade nao pode ser processada (nao foi possivel)
 		ValidationError err=new ValidationError();
 		err.setTimestamp(Instant.now());
 		err.setStatus(status.value());
