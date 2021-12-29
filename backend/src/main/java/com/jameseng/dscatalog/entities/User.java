@@ -1,7 +1,10 @@
 package com.jameseng.dscatalog.entities;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,9 +17,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 @Entity
 @Table(name="tb_user") //será o nome da tabela no banco de dados
-public class User {
+public class User implements UserDetails, Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -112,6 +120,43 @@ public class User {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
+		return true;
+	}
+
+
+	
+	// UserDetails: 	-----------------------------------------------------------------------------
+	@Override //Retorna uma coleção do tipo GrantedAuthority
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		//vai percorrer a coleção de Roles convetendo para o tipo GrantedAuthority
+		
+		//percorrer a coleção convertendo cada tipo role para elemento do tipo GrantedAuthoriry
+		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority())).collect(Collectors.toList());
+		//SimpleGrantedAuthority = classe concreta que implementa o GrantedAuthority
+	}
+
+	@Override
+	public String getUsername() {
+		return email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
 		return true;
 	}
 }

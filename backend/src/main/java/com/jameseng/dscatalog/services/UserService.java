@@ -4,11 +4,16 @@ import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +30,10 @@ import com.jameseng.dscatalog.services.exceptions.DatabaseException;
 import com.jameseng.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
+	
+	//instanciando o Logger
+	private static Logger Logger=LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder; //vai usar esse objeto para codificar a senha do usuário
@@ -106,5 +114,18 @@ public class UserService {
 			Role role=roleRepository.getOne(roleDto.getId());
 			entity.getRoles().add(role);
 		}
+	}
+
+	
+	//UserDetailsService: 	------------------------------------------------------------------
+	@Override //retorna username (email) de acordo com o UserDetails
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user=repository.findByEmail(username);
+		if(user==null) {
+			Logger.error("User not found: "+username);
+			throw new UsernameNotFoundException("Email not found");
+		}
+		Logger.info("User found: "+username);
+		return user;
 	}
 }
