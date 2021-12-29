@@ -1,7 +1,10 @@
 package com.jameseng.dscatalog.config;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -13,6 +16,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @EnableResourceServer //processa a funcionalidade do Oauth2
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
+	@Autowired
+	private Environment env; //para liberar o H2 no perfil test
+	
 	@Autowired
 	private JwtTokenStore tokenStore;
 	
@@ -29,6 +35,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
+		
+		//se eu estou rodando um profile test, quero liberar o h2
+		if(Arrays.asList(env.getActiveProfiles()).contains("test")){
+			http.headers().frameOptions().disable(); //liberar o H2 - desabilita os frames
+		}
 		
 		http.authorizeRequests().antMatchers(PUBLIC).permitAll()   		//rotas até public todos tem acesso liberado
 		.antMatchers(HttpMethod.GET, OPERATOR_OR_ADMIN).permitAll()		//libera todo o método get no vetor operator_or_admin, liberando pata todos
