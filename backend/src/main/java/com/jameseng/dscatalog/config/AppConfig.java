@@ -1,5 +1,6 @@
 package com.jameseng.dscatalog.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,6 +9,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 public class AppConfig {
+	
+	//para ler o valor no arquivo de configuração:
+	@Value("${jwt.secret}")
+	private String jwtSecret;
 	
 	@Bean //componente do spring = será um componente gerenciado pelo springboot
 	public BCryptPasswordEncoder passwordEncoder(){
@@ -20,7 +25,7 @@ public class AppConfig {
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter(); //instanciou o obejto
-		tokenConverter.setSigningKey("MY-JWT-SECRET"); //registra a chave do token (assinatura)
+		tokenConverter.setSigningKey(jwtSecret); //registra a chave do token (assinatura)
 		return tokenConverter;
 	}
 
