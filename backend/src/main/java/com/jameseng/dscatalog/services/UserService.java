@@ -116,7 +116,6 @@ public class UserService implements UserDetailsService {
 		}
 	}
 
-	
 	//UserDetailsService: 	------------------------------------------------------------------
 	@Override //retorna username (email) de acordo com o UserDetails
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
