@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,7 +29,7 @@ public class ProductResource {
 	@Autowired
 	private ProductService service;
 	
-	@GetMapping
+	/*@GetMapping
 	public ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable
 			
 			//Parâmetros: page, size, sort
@@ -38,10 +39,26 @@ public class ProductResource {
 			@RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction,	
 			@RequestParam(value = "orderBy", defaultValue = "name") String orderBy*/
-		) {
+		//) {
 		//PageRequest pageRequest=PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		
-		Page<ProductDTO> list=service.findAllPaged(pageable);
+		/*Page<ProductDTO> list=service.findAllPaged(pageable);
+		
+		return ResponseEntity.ok().body(list);
+	}*/
+	
+	@GetMapping
+	public ResponseEntity<Page<ProductDTO>> findAll(
+			@RequestParam(value = "categoryId", defaultValue = "0") Long categoryId,
+			Pageable pageable
+
+			/*@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
+			@RequestParam(value = "direction", defaultValue = "ASC") String direction,	
+			@RequestParam(value = "orderBy", defaultValue = "name") String orderBy*/
+		) {
+		
+		Page<ProductDTO> list=service.findAllPaged(categoryId, pageable);
 		
 		return ResponseEntity.ok().body(list);
 	}
