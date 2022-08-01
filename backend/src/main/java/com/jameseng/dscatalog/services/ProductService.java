@@ -32,7 +32,7 @@ public class ProductService {
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
-	@Transactional(readOnly=true)
+	/*@Transactional(readOnly=true)
 	public Page<ProductDTO> findAllPaged(Pageable pageable) {
 		Page<Product> list=repository.findAll(pageable);
 		
@@ -45,15 +45,17 @@ public class ProductService {
 			listDto.add(new ProductDTO(cat));
 		}
 		return listDto;*/
-	}
+	//}
 	
 	@Transactional(readOnly=true)
 	public Page<ProductDTO> findAllPaged(Long categoryId, String name, Pageable pageable) {
 		List<Category> categories = (categoryId == 0) ? null : Arrays.asList(categoryRepository.getOne(categoryId));
 		
-		Page<Product> list=repository.find(categories, name, pageable); // Método implementado no repository
+		Page<Product> page=repository.find(categories, name, pageable); // Método implementado no repository
 		
-		return list.map(x -> new ProductDTO(x));
+		repository.findProductsWithCategories(page.getContent());
+		
+		return page.map(x -> new ProductDTO(x, x.getCategories()));
 	}
 
 	@Transactional(readOnly=true)

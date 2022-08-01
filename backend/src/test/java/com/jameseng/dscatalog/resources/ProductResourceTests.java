@@ -20,7 +20,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -33,8 +35,11 @@ import com.jameseng.dscatalog.services.ProductService;
 import com.jameseng.dscatalog.services.exceptions.DatabaseException;
 import com.jameseng.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.jameseng.dscatalog.tests.Factory;
+import com.jameseng.dscatalog.tests.TokenUtil;
 
-@WebMvcTest(ProductResource.class) //teste só do controlador mocando o service
+//@WebMvcTest(ProductResource.class) //teste só do controlador mocando o service
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ProductResourceTests {
 
 	//tem que fazer requisições (chamar os andpoints)
@@ -43,6 +48,9 @@ public class ProductResourceTests {
 	
 	@Autowired
 	private ObjectMapper objectMapper; //para o teste de update - 02-33 Testando o update
+	
+	@Autowired
+	private TokenUtil tokenUtil;
 	
 	//Dependência do ProductService
 	@MockBean //service será mocado
@@ -58,8 +66,14 @@ public class ProductResourceTests {
 	private Long noExistingId;
 	private Long dependentId; //para o teste do delete()
 	
+	private String userName;
+	private String password;
+	
 	@BeforeEach
 	void setUp() throws Exception {
+		
+		userName = "maria@gmail.com";
+		password = "123456";
 		
 		/* 02-30 Começando testes na camada web
 		instanciações para o teste do findAllPaged*/	//	--------------------------------------------
@@ -68,7 +82,7 @@ public class ProductResourceTests {
 		
 		//Simulando o comportamento do service: testar de unidade do findAll, que recebe um Pageable e retorna um Page
 		//quando chamar o findAllPaged(any())), deve retornar uma página
-		when(service.findAllPaged(any())).thenReturn(page);
+		when(service.findAllPaged(any(), any(),any())).thenReturn(page);
 		//any() = qualquer argumento						--------------------------------------------	
 		
 		/* 02-32 Testando o findById	--------------------------------------------
@@ -144,6 +158,8 @@ public class ProductResourceTests {
 	@Test //teste do update do ProductResource - 02-33 Testando o update
 	public void updateShouldReturnNotProductDTOWhenIdExistis() throws Exception {
 		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
+		
 		//put = essa requisição tem corpo
 		//corpo da requisição http (json) não é um objeto java, é um texto. Convertendo para um objeto java:
 		//private ObjectMapper objectMapper; //nas declarações
@@ -154,10 +170,11 @@ public class ProductResourceTests {
 		//.content(jsonbody) = passando o jsonbody na requisição
 		//contentType(MediaType.APPLICATION_JSON) = negociar o tipo de dados da requisição, nao só o da resposta (accept)
 	
-		ResultActions result=mockMvc.perform(put("/products/{id}", existingId).
-				content(jsonbody). //passando o jsonbody na requisição
-				contentType(MediaType.APPLICATION_JSON). //negociar o tipo de dados da requisição, nao só o da resposta (accept)
-				accept(MediaType.APPLICATION_JSON)); //a requisição vai aceitar como resposta o tipo JSON*/
+		ResultActions result=mockMvc.perform(put("/products/{id}", existingId)
+				.header("Authorization", "Bearer " + accessToken)
+				.content(jsonbody) //passando o jsonbody na requisição
+				.contentType(MediaType.APPLICATION_JSON) //negociar o tipo de dados da requisição, nao só o da resposta (accept)
+				.accept(MediaType.APPLICATION_JSON)); //a requisição vai aceitar como resposta o tipo JSON*/
 		
 		//Assertions:
 		result.andExpect(status().isOk());
@@ -169,12 +186,15 @@ public class ProductResourceTests {
 	@Test //teste do update do ProductResource - 02-33 Testando o update
 	public void updateShouldReturnNotFoundWhenIdDoesNotExistis() throws Exception {
 		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
+		
 		String jsonbody=objectMapper.writeValueAsString(productDTO); //dentro do teste
 		
-		ResultActions result=mockMvc.perform(put("/products/{id}", noExistingId).
-				content(jsonbody).
-				contentType(MediaType.APPLICATION_JSON).
-				accept(MediaType.APPLICATION_JSON));
+		ResultActions result=mockMvc.perform(put("/products/{id}", noExistingId)
+				.header("Authorization", "Bearer " + accessToken)
+				.content(jsonbody)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
 		
 		//Assertions:
 		result.andExpect(status().isNotFound()); //Tem que retornar um código NotFound, pois o id nao existe
@@ -183,8 +203,12 @@ public class ProductResourceTests {
 	@Test //teste do delete com id existente do ProductResource - 02-35 Exercício testes na camada web
 	public void deleteShouldReturnNoContentWhenIdExistis() throws Exception {
 		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
+		
 		//delete não tem corpo na resposta
-		ResultActions result=mockMvc.perform(delete("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON));
+		ResultActions result=mockMvc.perform(delete("/products/{id}", existingId)
+				.header("Authorization", "Bearer " + accessToken)
+				.accept(MediaType.APPLICATION_JSON));
 		
 		//Assertions:
 		result.andExpect(status().isNoContent());
@@ -193,8 +217,12 @@ public class ProductResourceTests {
 	@Test //teste do delete com id não existente do ProductResource - 02-35 Exercício testes na camada web
 	public void deleteShouldReturnNotFoundWhenIdDoesNotExistis() throws Exception {
 		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
+		
 		//delete não tem corpo na resposta
-		ResultActions result=mockMvc.perform(delete("/products/{id}", noExistingId).accept(MediaType.APPLICATION_JSON));
+		ResultActions result=mockMvc.perform(delete("/products/{id}", noExistingId)
+				.header("Authorization", "Bearer " + accessToken)
+				.accept(MediaType.APPLICATION_JSON));
 		
 		//Assertions:
 		result.andExpect(status().isNotFound()); //Tem que retornar um código NotFound, pois o id nao existe
@@ -203,12 +231,15 @@ public class ProductResourceTests {
 	@Test //teste do insert do ProductResource - 02-35 Exercício testes na camada web
 	public void insertShouldReturnProductDTOCreated() throws Exception {
 		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
+		
 		String jsonbody=objectMapper.writeValueAsString(productDTO); //dentro do teste
 		
-		ResultActions result=mockMvc.perform(post("/products"). //só ("/products") dentro do post
-				content(jsonbody). //passando o jsonbody na requisição
-				contentType(MediaType.APPLICATION_JSON). //negociar o tipo de dados da requisição, nao só o da resposta (accept)
-				accept(MediaType.APPLICATION_JSON)); //a requisição vai aceitar como resposta o tipo JSON*/
+		ResultActions result=mockMvc.perform(post("/products") //só ("/products") dentro do post
+				.header("Authorization", "Bearer " + accessToken)
+				.content(jsonbody) //passando o jsonbody na requisição
+				.contentType(MediaType.APPLICATION_JSON) //negociar o tipo de dados da requisição, nao só o da resposta (accept)
+				.accept(MediaType.APPLICATION_JSON)); //a requisição vai aceitar como resposta o tipo JSON*/
 		
 		//Assertions:
 		result.andExpect(status().isCreated());

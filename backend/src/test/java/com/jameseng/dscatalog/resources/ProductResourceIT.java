@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jameseng.dscatalog.dto.ProductDTO;
 import com.jameseng.dscatalog.tests.Factory;
+import com.jameseng.dscatalog.tests.TokenUtil;
 
 @SpringBootTest //teste de integração
 @AutoConfigureMockMvc //teste da camada web
@@ -31,15 +32,24 @@ public class ProductResourceIT {
 	@Autowired
 	private ObjectMapper objectMapper; //para o teste de update - 02-33 Testando o update
 	
+	@Autowired
+	private TokenUtil tokenUtil;
+	
 	private Long existingId;
 	private Long noExistingId;
 	private Long countTotalProducts;
+	
+	private String userName;
+	private String password;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId=1L;
 		noExistingId=1000L;
 		countTotalProducts=25L;
+		
+		userName = "maria@gmail.com";
+		password = "123456";
 	}
 	
 	//02-38 Teste de integração na camada web findAll
@@ -68,6 +78,8 @@ public class ProductResourceIT {
 	//02-39 Teste de integração na camada web update
 	@Test //testando o update quando o id existe
 	public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
+		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
 
 		ProductDTO productDTO=Factory.createProductDTO();
 		
@@ -77,6 +89,7 @@ public class ProductResourceIT {
 		String expectedDescription=productDTO.getDescription(); //grava a descrição que será salva no banco de dados
 
 		ResultActions result = mockMvc.perform(put("/products/{id}", existingId)
+				.header("Authorization", "Bearer " + accessToken)
 				.content(jsonbody) // passando o jsonbody na requisição
 				.contentType(MediaType.APPLICATION_JSON) // negociar o tipo de dados da requisição, nao só o da resposta
 				.accept(MediaType.APPLICATION_JSON)); // a requisição vai aceitar como resposta o tipo JSON*/
@@ -94,12 +107,15 @@ public class ProductResourceIT {
 	// 02-39 Teste de integração na camada web update
 	@Test //testando o método update quando o id não existe
 	public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+		
+		String accessToken = tokenUtil.obtainAccessToken(mockMvc, userName, password);
 
 		ProductDTO productDTO=Factory.createProductDTO();
 		
 		String jsonbody = objectMapper.writeValueAsString(productDTO); // dentro do teste
 
 		ResultActions result = mockMvc.perform(put("/products/{id}", noExistingId)
+				.header("Authorization", "Bearer " + accessToken)
 				.content(jsonbody) // passando o jsonbody na requisição
 				.contentType(MediaType.APPLICATION_JSON) // negociar o tipo de dados da requisição, nao só o da resposta
 				.accept(MediaType.APPLICATION_JSON)); // a requisição vai aceitar como resposta o tipo JSON*/

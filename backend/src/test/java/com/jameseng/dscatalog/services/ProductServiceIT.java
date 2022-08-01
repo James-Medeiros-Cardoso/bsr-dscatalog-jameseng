@@ -65,7 +65,7 @@ public class ProductServiceIT {
 		PageRequest pageRequest=PageRequest.of(0, 10);
 		
 		//como o banco de 25 produtos, uma página com 10 tem que ser retornada
-		Page<ProductDTO> result=service.findAllPaged(pageRequest);
+		Page<ProductDTO> result=service.findAllPaged(0L, "", pageRequest);
 		
 		//é false que a variável result está vazia?
 		Assertions.assertFalse(result.isEmpty());
@@ -85,7 +85,7 @@ public class ProductServiceIT {
 		PageRequest pageRequest=PageRequest.of(50, 10);
 		
 		//como o banco de 25 produtos, uma página com 10 tem que ser retornada
-		Page<ProductDTO> result=service.findAllPaged(pageRequest);
+		Page<ProductDTO> result=service.findAllPaged(0L, "", pageRequest);
 		
 		//é verdade que a variável result está vazia?
 		Assertions.assertTrue(result.isEmpty());
@@ -99,7 +99,7 @@ public class ProductServiceIT {
 		PageRequest pageRequest=PageRequest.of(0, 10, Sort.by("name")); //Sort.by("name")=critério de ordenação por nome
 		
 		//como o banco de 25 produtos, uma página com 10 tem que ser retornada
-		Page<ProductDTO> result=service.findAllPaged(pageRequest);
+		Page<ProductDTO> result=service.findAllPaged(0L, "", pageRequest);
 		
 		//é falso que a variável result está vazia?
 		Assertions.assertFalse(result.isEmpty());

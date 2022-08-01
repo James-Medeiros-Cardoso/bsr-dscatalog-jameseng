@@ -1,6 +1,8 @@
 //Teste de unidade: somente a classe especifica sem carregar o componente
 package com.jameseng.dscatalog.services;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -10,7 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -83,10 +85,10 @@ public class ProductServiceTests {
 		/*para métodos que não retornam void = Mockito.(quando fazer isso).(então retonar isso)
 		quando eu chamar o repository.findAll() passando um objeto qualquer do tipo pageable,
 		essa chamada do findAll deve retornar uma página (page)*/
-		Mockito.when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
+		Mockito.when(repository.findAll((Pageable)any())).thenReturn(page);
 		
 		//quando eu chamar repository.save() passando qualquer objeto, então retorne um produto (product)
-		Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
+		Mockito.when(repository.save(any())).thenReturn(product);
 		
 		//5 - quando eu chamar repository.findById(existingId), então retornar um Optional<Product> product não vazio
 		Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product)); //retorna um produto optional
@@ -100,6 +102,9 @@ public class ProductServiceTests {
 		//Mockito.doThrow(EntityNotFoundException.class).when(repository).getOne(noExistingId); //FEITO POR JAMES
 		Mockito.when(repository.getOne(noExistingId)).thenThrow(EntityNotFoundException.class); //feito pela aula de correção
 		Mockito.when(categoryRepository.getOne(noExistingId)).thenThrow(EntityNotFoundException.class);//feito pela aula de correção
+		
+		//6 - quando eu chamar repository.findById(noExistingId), então retornar um Optional vazio
+		Mockito.when(repository.find(any(), any(), any())).thenReturn(page); //retorna um optional vazio
 	}
 	
 	
@@ -156,13 +161,13 @@ public class ProductServiceTests {
 		
 		Pageable pageable=PageRequest.of(0, 10);
 		
-		Page<ProductDTO> result=service.findAllPaged(pageable);
+		Page<ProductDTO> result=service.findAllPaged(0L, "", pageable);
 		
 		//para testar se não é nulo este resultado:
 		Assertions.assertNotNull(result);
 		
 		//para ver se realmente o meu repository.findAllPageable foi chamado dentro do findAllPageable service
-		Mockito.verify(repository, Mockito.times(1)).findAll(pageable);	
+		//Mockito.verify(repository, Mockito.times(1)).findAll(pageable); // APAGADO NA AULA 05-31
 		//Mockito.times(1) = chamado uma vez (é opcional)
 	}
 	
