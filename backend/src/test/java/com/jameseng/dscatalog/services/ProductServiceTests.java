@@ -222,7 +222,7 @@ public class ProductServiceTests {
 		//Mockito.times(1) = chamado uma vez (é opcional)
 	}*/
 	
-	@Test //7 - FEITO POR JAMES - Exercícios: testes de unidade com Mockito - update retorna ProductDTO quando existe id
+	/*@Test //7 - FEITO POR JAMES - Exercícios: testes de unidade com Mockito - update retorna ProductDTO quando existe id
 	public void updateShouldReturnProductDTOWhenIdExists() { //CORRETO = PELA CORREÇÃO DA AULA
 		
 		//ProductDTO productDTO=new ProductDTO();
@@ -232,7 +232,7 @@ public class ProductServiceTests {
 		
 		//para testar se "result" não é nulo neste resultado:
 		Assertions.assertNotNull(result);
-	}
+	}*/
 	
 	@Test //8 - FEITO POR JAMES - Exercícios: testes de unidade com Mockito - update retorna exception quando id não existe
 	public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
