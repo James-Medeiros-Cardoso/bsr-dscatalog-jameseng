@@ -1,10 +1,14 @@
 import './assets/styles/custom.scss';
 import './App.css';
+import NavBar from 'components/NavBar';
 
-function App() {
+const App = () => {
   return (
-    <h1>James</h1>
+    <>
+      <NavBar />
+      <h1>James</h1>
+    </>
   );
-}
+};
 
 export default App;
